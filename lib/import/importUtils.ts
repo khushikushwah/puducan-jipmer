@@ -137,6 +137,8 @@ const uploadToFirestore = async (rows: any[], activeTab: string, queryClient: an
                 const data = doc.data()
                 hospitalMap[data.name] = { id: doc.id, name: data.name }
 
+            })
+        }
 
         let successCount = 0
         const errors: { row: number; issues: string[]; rowData: any }[] = []

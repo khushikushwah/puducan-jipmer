@@ -29,6 +29,7 @@ function AshaPageContent() {
         data: Patient[]
         isLoading: boolean
         isError: boolean
+    }
 
 
     if (isLoading || isLoadingAuth) {
