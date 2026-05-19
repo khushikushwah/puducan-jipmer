@@ -68,7 +68,19 @@ export const PatientSchema = z
         hasAadhaar: z.boolean(),
         suspectedCase: z.boolean().optional(),
         // additional fields after second meet
-        hbcrID: z.string().optional(),
+        hbcrID: z
+            .preprocess((val) => {
+                if (typeof val === 'string') {
+                    const s = val.trim().toUpperCase()
+                    return s === '' ? undefined : s
+                }
+                return val
+            },
+                z.string().regex(/^[A-Z0-9-]{5,20}$/, {
+                    message:
+                        'HBCR ID must be 5-20 characters and contain only letters, numbers, and hyphens',
+                }))
+            .optional(),
         hospitalRegistrationId: z.string().optional(),
         stageOfTheCancer: z.string().optional(),
         reasonOfRemoval: z.string().optional(),
