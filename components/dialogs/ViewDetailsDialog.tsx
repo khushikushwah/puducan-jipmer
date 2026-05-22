@@ -4,8 +4,13 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Patient } from '@/schema/patient'
 import { UserDoc } from '@/schema/user'
 import { Hospital } from '@/schema/hospital'
+import { db } from '@/firebase'
+import { doc, getDoc } from 'firebase/firestore'
+import { useEffect, useState } from 'react'
+
 type RowDataType = Patient | UserDoc | Hospital
 type FieldToDisplay = { label: string; key: string }
+
 export default function ViewDetailsDialog({
     open,
     onOpenChange,
@@ -17,7 +22,35 @@ export default function ViewDetailsDialog({
     rowData: RowDataType
     fieldsToDisplay: FieldToDisplay[]
 }) {
+    const [ashaName, setAshaName] = useState<string | null>(null)
+
+    useEffect(() => {
+        const ashaId = (rowData as Patient).assignedAsha
+        if (!ashaId || ashaId === 'none' || ashaId === '') {
+            setAshaName(null)
+            return
+        }
+        const fetchAshaName = async () => {
+            try {
+                const ashaDoc = await getDoc(doc(db, 'users', ashaId))
+                if (ashaDoc.exists()) {
+                    const data = ashaDoc.data()
+                    setAshaName(data.name || data.email || ashaId)
+                } else {
+                    setAshaName(ashaId)
+                }
+            } catch {
+                setAshaName(ashaId)
+            }
+        }
+        fetchAshaName()
+    }, [rowData])
+
     function renderValue(key: string, value: any): string {
+        if (key === 'assignedAsha') {
+            if (!value || value === 'none' || value === '') return 'N/A'
+            return ashaName ?? 'Loading...'
+        }
         if (value == null) return 'N/A'
         if (value === '') return 'N/A'
         if (Array.isArray(value)) {
@@ -46,6 +79,7 @@ export default function ViewDetailsDialog({
         }
         return String(value)
     }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="bg-card text-card-foreground rounded-xl shadow-md sm:max-w-md">
@@ -83,6 +117,7 @@ export default function ViewDetailsDialog({
         </Dialog>
     )
 }
+
 function Info({ label, value }: { label: string; value: string }) {
     return (
         <div className="border-b border-border py-3 last:border-0">
