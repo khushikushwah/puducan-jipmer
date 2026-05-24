@@ -71,8 +71,8 @@ export default function HomePage() {
         <img
           src="/jipmer-logo.png"
           alt="PuduCan JIPMER Logo"
-          width={120}
-          height={120}
+          width={160}
+          height={140}
           className="rounded-md shadow-md border-2 border-blue-600 dark:border-blue-500 p-2"
         />
       </div>
